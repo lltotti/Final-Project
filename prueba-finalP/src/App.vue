@@ -1,21 +1,39 @@
-<script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import HelloWorld from './components/HelloWorld.vue'
-</script>
+<template >
+    <section class="bg-teal-500 h-screen" >
+    <router-view class="app-main" /> <!-- your routes will load inside of these tags -->    
+    <router-link to="/auth"/>
+ 
 
-<template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + Vite" />
+  
+  </section>
+  
 </template>
+ 
+ 
+<script setup>
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+import { useUserStore } from './store/user.js'
+import Auth from "./views/Auth.vue"
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+ 
+const router = useRouter()
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
+ 
+onMounted(async () => {
+  try {
+    await userStore.fetchUser() // here we call fetch user
+    if (!user.value) {
+      // redirect them to logout if the user is not there
+      router.push({ path: '/auth' });
+    } else {
+      // continue to dashboard
+      router.push({ path: '/' });
+    }
+  } catch (e) {
+    console.log(e)
+  }
+})
+</script>
